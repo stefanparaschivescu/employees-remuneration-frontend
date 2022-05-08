@@ -15,9 +15,11 @@ import {Link, NavLink} from "react-router-dom";
 import {UserContext} from "../App";
 
 function Menu(props) {
+    const currentUser = useContext(UserContext);
+
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showCanvas, setShowCanvas] = useState(false);
-    const currentUser = useContext(UserContext);
+    const isAdmin = (currentUser?.role.name === "admin");
 
     const handleClose = () => setShowCanvas(false);
     const handleShow = () => setShowCanvas(true);
@@ -41,7 +43,7 @@ function Menu(props) {
                     <Offcanvas.Body>
                         <Nav className="justify-content-end flex-grow-1 pe-3">
                             <Nav.Link as={NavLink} to="/" onClick={handleClose}>Home</Nav.Link>
-                            <Nav.Link href="#action2">Link</Nav.Link>
+                            {isAdmin && <Nav.Link as={NavLink} to="/table" onClick={handleClose}>List of employees</Nav.Link>}
                             <NavDropdown title="Dropdown" id="offcanvasNavbarDropdown">
                                 <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
                                 <NavDropdown.Item href="#action4">Another action</NavDropdown.Item>
