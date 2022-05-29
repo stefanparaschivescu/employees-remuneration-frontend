@@ -2,46 +2,68 @@ import {Button, Col, Container, Form, Row} from "react-bootstrap";
 import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../App";
 import UserService from "../services/user.service";
+import * as yup from "yup";
+import {Formik} from "formik";
+import LoadingScreen from "./LoadingScreen";
 
 function FunctionData(props) {
+    const validationSchema = yup.object().shape({
+        companyName: yup.string(),
+        email: yup.string()
+            .email("*Must be a valid email address")
+            .max(50, "*Email must be less than 50 characters")
+            .required("*Email is required"),
+        salary: yup.number()
+            .min(2000)
+            .required(),
+        internalNumber: yup.number()
+            .required()
+    });
+
+    const initialSchema = {
+        companyName: "",
+        email: "",
+        salary: "",
+        internalNumber: ""
+    };
+
     const currentUser = useContext(UserContext);
 
     const isAdmin = (currentUser.role.name === "admin");
     const [userId, setUserId] = useState(undefined);
-    const [companyName, setCompanyName] = useState(undefined);
-    const [email, setEmail] = useState(undefined);
-    const [salary, setSalary] = useState(undefined);
-    const [internalNumber, setInternalNumber] = useState(undefined);
-
+    const [initialValues, setInitialValues] = useState(initialSchema);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         (props.id) ? setUserId(props.id) : setUserId(currentUser.id);
 
         if (userId) {
+            setIsLoading(true);
             UserService.getUserById(userId)
                 .then(response => {
-                    setCompanyName(response.data.companyId.name);
-                    setEmail(response.data.emailAddress);
-                    setSalary(response.data.salary);
-                    setInternalNumber(response.data.internalNumber);
+                    const user = response.data;
+                    const userObject = {
+                        companyName: user.companyId.name ? user.companyId.name : "",
+                        email: user.emailAddress ? user.emailAddress : "",
+                        salary: user.salary ? user.salary : "",
+                        internalNumber: user.internalNumber ? user.internalNumber : ""
+                    }
+                    setInitialValues(userObject);
+                    setIsLoading(false);
                 })
                 .catch(err => console.log(err));
         }
-
     }, [currentUser.id, props.id, userId]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    const handleSubmit = (values) => {
         const userObject = {
-            ...email && {emailAddress: email},
-            ...salary && {salary: salary},
-            ...internalNumber && {internalNumber: internalNumber}
+            ...values.email && {emailAddress: values.email},
+            ...values.salary && {salary: values.salary},
+            ...values.internalNumber && {internalNumber: values.internalNumber},
         };
 
         UserService.updateUserById(userId, userObject)
             .then(() => {
-                    console.log(currentUser);
                     window.location.reload();
                 },
                 (error) => {
@@ -51,73 +73,109 @@ function FunctionData(props) {
                             error.response.data.message) ||
                         error.message ||
                         error.toString();
-
                     console.log(resMessage);
                 })
     }
 
     return (
-        <Container className={props.className}>
-            {companyName ? (
-                <Form onSubmit={handleSubmit}>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridCompanyName">
-                            <Form.Label>Company Name</Form.Label>
-                            <Form.Control
-                                defaultValue={companyName !== undefined ? String(companyName) : ""}
-                                disabled
-                                placeholder="Company Ltd."/>
-                        </Form.Group>
+        <>
+            {!isLoading ? (
+                <Container className={props.className}>
+                    <Formik initialValues={initialValues}
+                            enableReinitialize
+                            validationSchema={validationSchema}
+                            onSubmit={(values) => handleSubmit(values)}>
+                        {({
+                              values,
+                              errors,
+                              handleChange,
+                              handleBlur,
+                              handleSubmit
+                          }) => (
+                            <Form onSubmit={handleSubmit}>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} controlId="formGridCompanyName">
+                                        <Form.Label>Company Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="companyName"
+                                            value={values.companyName}
+                                            disabled
+                                            placeholder="Company Ltd."/>
+                                    </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridEmail">
-                            <Form.Label>Email Address</Form.Label>
-                            <Form.Control
-                                disabled={!isAdmin}
-                                value={email !== undefined ? String(email) : ""}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="email@example.com"
-                            />
-                        </Form.Group>
-                    </Row>
+                                    <Form.Group as={Col} controlId="formGridEmail">
+                                        <Form.Label>Email Address</Form.Label>
+                                        <Form.Control
+                                            disabled={!isAdmin}
+                                            type="text"
+                                            name="email"
+                                            value={values.email}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="email@example.com"
+                                            isInvalid={!!errors.email}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.email}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridCompanySalary">
-                            <Form.Label>Salary</Form.Label>
-                            <Form.Control
-                                disabled={!isAdmin}
-                                value={salary !== undefined ? String(salary) : ""}
-                                onChange={(e) => setSalary(e.target.value)}
-                                placeholder="2000"/>
-                        </Form.Group>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} controlId="formGridCompanySalary">
+                                        <Form.Label>Salary</Form.Label>
+                                        <Form.Control
+                                            disabled={!isAdmin}
+                                            type="number"
+                                            name="salary"
+                                            value={values.salary}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="2000"
+                                            isInvalid={!!errors.salary}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.salary}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridInternalCode">
-                            <Form.Label>Internal Number</Form.Label>
-                            <Form.Control
-                                disabled={!isAdmin}
-                                placeholder="128521"
-                                value={internalNumber !== undefined ? String(internalNumber) : ""}
-                                onChange={(e) => setInternalNumber(e.target.value)}
-                            />
-                        </Form.Group>
+                                    <Form.Group as={Col} controlId="formGridInternalCode">
+                                        <Form.Label>Internal Number</Form.Label>
+                                        <Form.Control
+                                            disabled={!isAdmin}
+                                            type="number"
+                                            name="internalNumber"
+                                            value={values.internalNumber}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="128521"
+                                            isInvalid={!!errors.internalNumber}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.internalNumber}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
 
-                        {/*<Form.Group as={Col} controlId="formGridFunction">*/}
-                        {/*    <Form.Label>Function</Form.Label>*/}
-                        {/*    <Form.Select disabled={!isAdmin}>*/}
-                        {/*        <option value="" disabled hidden>Choose...</option>*/}
-                        {/*        <option value="1">Option1</option>*/}
-                        {/*        <option value="2">Option2</option>*/}
-                        {/*    </Form.Select>*/}
-                        {/*</Form.Group>*/}
-                    </Row>
+                                    {/*<Form.Group as={Col} controlId="formGridFunction">*/}
+                                    {/*    <Form.Label>Function</Form.Label>*/}
+                                    {/*    <Form.Select disabled={!isAdmin}>*/}
+                                    {/*        <option value="" disabled hidden>Choose...</option>*/}
+                                    {/*        <option value="1">Option1</option>*/}
+                                    {/*        <option value="2">Option2</option>*/}
+                                    {/*    </Form.Select>*/}
+                                    {/*</Form.Group>*/}
+                                </Row>
 
-                    <Button hidden={!isAdmin} variant="primary" type="submit">
-                        Save changes
-                    </Button>
-                </Form>) : (<><h1>Please contact support@salaryapp.com and provide
-                your email address that you were registered with.</h1>
-                <h2>Sorry for the inconvenience.</h2></>)}
+                                <Button hidden={!isAdmin} variant="primary" type="submit">
+                                    Save changes
+                                </Button>
+                            </Form>
+                        )}
+                    </Formik>
+                </Container>) : (<LoadingScreen/>)}
+        </>
 
-        </Container>
     );
 }
 

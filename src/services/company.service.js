@@ -13,7 +13,7 @@ const createCompany = (company) => {
 }
 
 const getCompanies = () => {
-    return axios.get(API_URL, { headers: authHeader() });
+    return axios.get(API_URL, { headers: authHeader() }, );
 };
 
 const getCompanyById = (id) => {
@@ -21,9 +21,9 @@ const getCompanyById = (id) => {
         API_URL + "id/" + id, { headers: authHeader() });
 };
 
-const updateCompanyById = (id) => {
+const updateCompanyById = (id, body) => {
     return axios.put(
-        API_URL + "id/" + id, { headers: authHeader() });
+        API_URL + "id/" + id, body,{ headers: authHeader() });
 };
 
 const deleteCompanyById = (id) => {

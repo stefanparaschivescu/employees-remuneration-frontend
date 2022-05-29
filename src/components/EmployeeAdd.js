@@ -1,37 +1,65 @@
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import {DatePicker} from "react-rainbow-components";
 import {useState} from "react";
+import {Formik} from "formik";
+import * as yup from "yup";
 import UserService from "../services/user.service";
 
 function EmployeeAdd(props) {
-    const [firstName, setFirstName] = useState(undefined);
-    const [lastName, setLastName] = useState(undefined);
-    const [dateOfBirth, setDateOfBirth] = useState(undefined);
-    const [phoneNumber, setPhoneNumber] = useState(undefined);
-    const [gender, setGender] = useState(undefined);
-    const [address, setAddress] = useState(undefined);
-    const [married, setMarried] = useState(undefined);
-    const [password, setPassword] = useState(undefined);
-    const [email, setEmail] = useState(undefined);
-    const [salary, setSalary] = useState(undefined);
-    const [internalNumber, setInternalNumber] = useState(undefined);
+    const phoneRegExp = /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const validationSchema = yup.object().shape({
+        firstName: yup.string(),
+        lastName: yup.string(),
+        dateOfBirth: yup.date()
+            .max(new Date()),
+        phoneNumber: yup.string()
+            .matches(phoneRegExp, "*Phone number is not valid"),
+        gender: yup.boolean(),
+        address: yup.string()
+            .required("*Address is required"),
+        married: yup.boolean(),
+        email: yup.string()
+            .email("*Must be a valid email address")
+            .max(50, "*Email must be less than 50 characters")
+            .required("*Email is required"),
+        password: yup.string()
+            .required("*A default password is required in order to add a new employee"),
+        salary: yup.number()
+            .min(2000)
+            .required(),
+        internalNumber: yup.number()
+            .required()
+    });
 
+    const initialSchema = {
+        firstName: "",
+        lastName: "",
+        dateOfBirth: new Date(),
+        phoneNumber: "",
+        gender: "",
+        address: "",
+        married: "",
+        email: "",
+        password: "",
+        salary: "",
+        internalNumber: ""
+    };
+
+    const [initialValues, setInitialValues] = useState(initialSchema);
+
+    const handleSubmit = (values) => {
         const userObject = {
-            companyId: props.company.id,
-            firstName: firstName,
-            lastName: lastName,
-            dateOfBirth: dateOfBirth,
-            phoneNumber: phoneNumber,
-            gender: gender,
-            address: address,
-            married: married,
-            passwordToken: password,
-            emailAddress: email,
-            salary: salary,
-            internalNumber: internalNumber
+            ...values.firstName && {firstName: values.firstName},
+            ...values.lastName && {lastName: values.lastName},
+            ...values.dateOfBirth && {dateOfBirth: values.dateOfBirth},
+            ...values.phoneNumber && {phoneNumber: values.phoneNumber},
+            ...values.gender && {gender: values.gender},
+            ...values.address && {address: values.address},
+            ...values.married && {married: values.married},
+            ...values.email && {emailAddress: values.email},
+            ...values.salary && {salary: values.salary},
+            ...values.internalNumber && {internalNumber: values.internalNumber}
         };
 
         UserService.createEmployee(userObject)
@@ -45,7 +73,6 @@ function EmployeeAdd(props) {
                             error.response.data.message) ||
                         error.message ||
                         error.toString();
-
                     console.log(resMessage);
                 })
     }
@@ -63,124 +90,194 @@ function EmployeeAdd(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form onSubmit={handleSubmit}>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridFirstName">
-                            <Form.Label>First Name</Form.Label>
-                            <Form.Control
-                                value={firstName !== undefined ? String(firstName) : ""}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                placeholder="Steven"/>
-                        </Form.Group>
+                <Formik initialValues={initialValues}
+                        enableReinitialize
+                        validationSchema={validationSchema}
+                        onSubmit={(values) => handleSubmit(values)}>
+                    {({
+                          values,
+                          errors,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          setFieldValue,
+                      }) => (
+                        <Form onSubmit={handleSubmit}>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} controlId="formGridFirstName">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="firstName"
+                                        value={values.firstName}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="Firstname"
+                                        isInvalid={!!errors.firstName}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.firstName}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridLastName">
-                            <Form.Label>Last Name</Form.Label>
-                            <Form.Control
-                                value={lastName !== undefined ? String(lastName) : ""}
-                                onChange={(e) => setLastName(e.target.value)}
-                                placeholder="Johnson"/>
-                        </Form.Group>
-                    </Row>
+                                <Form.Group as={Col} controlId="formGridLastName">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="lastName"
+                                        value={values.lastName}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="Lastname"
+                                        isInvalid={!!errors.lastName}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.lastName}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridBirthday">
-                            <Form.Label>Date of birth</Form.Label>
-                            <DatePicker
-                                locale="en-US"
-                                value={dateOfBirth !== undefined ?
-                                    new Date(String(dateOfBirth)) : new Date()}
-                                onChange={value => setDateOfBirth(value)}
-                            />
-                        </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} controlId="formGridBirthday">
+                                    <Form.Label>Date of birth</Form.Label>
+                                    <DatePicker
+                                        name="dateOfBirth"
+                                        value={values.dateOfBirth}
+                                        onChange={(value) => setFieldValue("dateOfBirth", new Date(value))}
+                                        error={errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}/>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridPhone">
-                            <Form.Label>Phone number</Form.Label>
-                            <Form.Control
-                                value={phoneNumber !== undefined ? String(phoneNumber) : ""}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="+40..."/>
-                        </Form.Group>
+                                <Form.Group as={Col} controlId="formGridPhone">
+                                    <Form.Label>Phone number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="phoneNumber"
+                                        value={values.phoneNumber}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="+40..."
+                                        isInvalid={!!errors.phoneNumber}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.phoneNumber}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridGender">
-                            <Form.Label>Gender</Form.Label>
-                            <Form.Select
-                                value={gender !== undefined ?
-                                    String(gender) : ""}
-                                onChange={(e) => setGender(e.target.value)}
-                            >
-                                <option value="" disabled hidden>Choose...</option>
-                                <option value="true">Male</option>
-                                <option value="false">Female</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Row>
+                                <Form.Group as={Col} controlId="formGridGender">
+                                    <Form.Label>Gender</Form.Label>
+                                    <Form.Select
+                                        name="gender"
+                                        value={values.gender}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    >
+                                        <option value="" disabled hidden>Choose...</option>
+                                        <option value="true">Male</option>
+                                        <option value="false">Female</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridAddress">
-                            <Form.Label>Address</Form.Label>
-                            <Form.Control
-                                value={address !== undefined ? String(address) : ""}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Street, 4, City, State"
-                            />
-                        </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} controlId="formGridAddress">
+                                    <Form.Label>Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="address"
+                                        value={values.address}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="Street, 4, City, State"
+                                        isInvalid={!!errors.address}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.address}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridMarriage">
-                            <Form.Label>Married</Form.Label>
-                            <Form.Select
-                                value={married !== undefined ?
-                                    String(married) : ""}
-                                onChange={(e) => setMarried(e.target.value)}>
-                                <option value="" disabled hidden>Choose...</option>
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Row>
+                                <Form.Group as={Col} controlId="formGridMarriage">
+                                    <Form.Label>Married</Form.Label>
+                                    <Form.Select
+                                        name="married"
+                                        value={values.married}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    >
+                                        <option value="" disabled hidden>Choose...</option>
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridPassword">
-                            <Form.Label>Default Password</Form.Label>
-                            <Form.Control
-                                placeholder="Introduce a password"
-                                value={password !== undefined ? String(password) : ""}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} controlId="formGridPassword">
+                                    <Form.Label>Default Password</Form.Label>
+                                    <Form.Control
+                                        type="password"
+                                        name="password"
+                                        value={values.password}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="Password"
+                                        isInvalid={!!errors.password}/>
+                                    <Form.Control.Feedback
+                                        type="invalid">{errors.password}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridEmail">
-                            <Form.Label>Email Address</Form.Label>
-                            <Form.Control
-                                value={email !== undefined ? String(email) : ""}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="email@example.com"
-                            />
-                        </Form.Group>
-                    </Row>
+                                <Form.Group as={Col} controlId="formGridEmail">
+                                    <Form.Label>Email Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="email"
+                                        value={values.email}
+                                        onChange = {handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="email@example.com"
+                                        isInvalid={!!errors.email}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.email}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Row>
 
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formGridCompanySalary">
-                            <Form.Label>Salary</Form.Label>
-                            <Form.Control
-                                value={salary !== undefined ? String(salary) : ""}
-                                onChange={(e) => setSalary(e.target.value)}
-                                placeholder="2000"/>
-                        </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} controlId="formGridCompanySalary">
+                                    <Form.Label>Salary</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="salary"
+                                        value={values.salary}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="2000"
+                                        isInvalid={!!errors.salary}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.salary}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridInternalCode">
-                            <Form.Label>Internal Number</Form.Label>
-                            <Form.Control
-                                placeholder="128521"
-                                value={internalNumber !== undefined ? String(internalNumber) : ""}
-                                onChange={(e) => setInternalNumber(e.target.value)}
-                            />
-                        </Form.Group>
-                    </Row>
+                                <Form.Group as={Col} controlId="formGridInternalCode">
+                                    <Form.Label>Internal Number</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="internalNumber"
+                                        value={values.internalNumber}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="128521"
+                                        isInvalid={!!errors.internalNumber}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.internalNumber}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Row>
 
-                    <Button variant="primary" type="submit">
-                        Save changes
-                    </Button>
-                </Form>
+                            <Button variant="primary" type="submit">
+                                Save changes
+                            </Button>
+                        </Form>)}
+                </Formik>
             </Modal.Body>
         </Modal>
     )

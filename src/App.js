@@ -9,13 +9,22 @@ import SignupForm from "./components/SignupForm";
 import {createContext, useEffect, useState} from "react";
 import AuthService from "./services/auth.service";
 import EmployeesTable from "./components/EmployeesTable";
+import LoadingScreen from "./components/LoadingScreen";
+import VacationsTable from "./components/VacationsTable";
+import GeneratePayslip from "./components/GeneratePayslip";
+import SalaryCalculator from "./components/SalaryCalculator";
 
 export const UserContext = createContext(undefined);
 
 function App() {
-    const [currentUser, setCurrentUser] = useState(undefined);
+    const [currentUser, setCurrentUser] = useState();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        window.onbeforeunload = function () {
+            setLoading(true);
+        };
+
         const user = AuthService.getCurrentUser();
 
         if (user) {
@@ -32,18 +41,25 @@ function App() {
         <UserContext.Provider value={currentUser}>
             <BrowserRouter>
                 <Menu logOut={logOut}/>
-                <Routes>
-                    <Route path="/"
-                           element={<Home/>}/>
-                    <Route path="/profile"
-                           element={<EmployeeData/>}/>
-                    <Route path="/login"
-                           element={<LoginForm/>}/>
-                    <Route path="/signup"
-                           element={<SignupForm/>}/>
-                    <Route path="/table"
-                           element={<EmployeesTable/>}/>
-                </Routes>
+                {loading ? (<LoadingScreen/>) :
+                    (<Routes>
+                        <Route path="/"
+                               element={<Home/>}/>
+                        <Route path="/profile"
+                               element={<EmployeeData/>}/>
+                        <Route path="/login"
+                               element={<LoginForm/>}/>
+                        <Route path="/signup"
+                               element={<SignupForm/>}/>
+                        <Route path="/table"
+                               element={<EmployeesTable/>}/>
+                        <Route path="/vacations"
+                               element={<VacationsTable/>}/>
+                        <Route path="/payslip"
+                               element={<GeneratePayslip/>}/>
+                        <Route path="/calculator"
+                               element={<SalaryCalculator/>}/>
+                    </Routes>)}
             </BrowserRouter>
         </UserContext.Provider>
     );

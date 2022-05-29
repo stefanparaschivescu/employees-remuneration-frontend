@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Container, Tab, Tabs} from "react-bootstrap";
 import PersonalData from "./PersonalData";
 import FunctionData from "./FunctionData";
@@ -10,21 +10,20 @@ function EmployeeData(props) {
 
     return (
         <Container>
-            {currentUser !== undefined ? (<Tabs
-                id="controlled-tab-example"
-                activeKey={key}
-                onSelect={(k) => setKey(k)}
-                className="mb-3"
-            >
-                <Tab eventKey="personal" title="Personal Data">
-                    <PersonalData id={props.userid}/>
-                </Tab>
-                <Tab eventKey="function" title="Function-related Data">
-                    <FunctionData id={props.userid}/>
-                </Tab>
-            </Tabs>) : (
-                <h1>You are not logged in</h1>
-            )}
+            {currentUser !== undefined ?
+                (<Tabs
+                    id="controlled-tab-example"
+                    activeKey={key}
+                    onSelect={(k) => setKey(k)}
+                    className="mb-3"
+                >
+                    <Tab eventKey="personal" title="Personal Data">
+                        <PersonalData id={props.userid}/>
+                    </Tab>
+                    <Tab eventKey="function" title="Function-related Data">
+                        <FunctionData id={props.userid}/>
+                    </Tab>
+                </Tabs>) : (<h1>You are not logged in</h1>)}
         </Container>
     );
 }

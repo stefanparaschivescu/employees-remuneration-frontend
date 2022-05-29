@@ -43,7 +43,13 @@ function Menu(props) {
                     <Offcanvas.Body>
                         <Nav className="justify-content-end flex-grow-1 pe-3">
                             <Nav.Link as={NavLink} to="/" onClick={handleClose}>Home</Nav.Link>
-                            {isAdmin && <Nav.Link as={NavLink} to="/table" onClick={handleClose}>List of employees</Nav.Link>}
+                            {!isAdmin && <Nav.Link
+                                as={NavLink} to="/payslip" onClick={handleClose}>Generate payslip</Nav.Link>}
+                            {isAdmin && <Nav.Link
+                                as={NavLink} to="/table" onClick={handleClose}>List of employees</Nav.Link>}
+                            {isAdmin && <Nav.Link
+                                as={NavLink} to="/vacations" onClick={handleClose}>List of vacation requests</Nav.Link>}
+                            <Nav.Link as={NavLink} to="/calculator" onClick={handleClose}>Salary net calculator</Nav.Link>
                             <NavDropdown title="Dropdown" id="offcanvasNavbarDropdown">
                                 <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
                                 <NavDropdown.Item href="#action4">Another action</NavDropdown.Item>
