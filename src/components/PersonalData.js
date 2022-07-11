@@ -20,7 +20,8 @@ function PersonalData(props) {
         gender: yup.boolean(),
         address: yup.string()
             .required("*Address is required"),
-        married: yup.boolean()
+        married: yup.boolean(),
+        IBAN: yup.string()
     });
 
     const initialSchema = {
@@ -30,7 +31,8 @@ function PersonalData(props) {
         phoneNumber: "",
         gender: "",
         address: "",
-        married: ""
+        married: "",
+        IBAN: ""
     }
 
     const currentUser = useContext(UserContext);
@@ -54,7 +56,8 @@ function PersonalData(props) {
                         phoneNumber: user.phoneNumber ? user.phoneNumber : "",
                         gender: user.hasOwnProperty("gender") ? user.gender : "",
                         address: user.address ? user.address : "",
-                        married: user.hasOwnProperty("married") ? user.married : ""
+                        married: user.hasOwnProperty("married") ? user.married : "",
+                        IBAN: user.IBAN ? user.IBAN : "",
                     }
                     setInitialValues(userObject);
                     setIsLoading(false);
@@ -72,7 +75,8 @@ function PersonalData(props) {
             ...values.phoneNumber && {phoneNumber: values.phoneNumber},
             ...values.gender && {gender: values.gender},
             ...values.address && {address: values.address},
-            ...values.married && {married: values.married}
+            ...values.married && {married: values.married},
+            ...values.IBAN && {IBAN: values.IBAN}
         };
 
         UserService.updateUserById(userId, userObject)
@@ -90,7 +94,6 @@ function PersonalData(props) {
                 })
     }
 
-    console.log(initialValues);
     return (
         <>
             {!isLoading ? (
@@ -210,6 +213,21 @@ function PersonalData(props) {
                                         </Form.Select>
                                     </Form.Group>
                                 </Row>
+
+                                <Form.Group className="mb-3" controlId="formGridIBAN">
+                                    <Form.Label>IBAN</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="IBAN"
+                                        value={values.IBAN}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        placeholder="RO35BTRLRONCRT2952912"
+                                        isInvalid={!!errors.IBAN}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.IBAN}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
 
                                 <Button variant="primary" type="submit">
                                     Save changes

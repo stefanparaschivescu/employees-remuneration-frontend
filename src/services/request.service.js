@@ -23,7 +23,15 @@ const getVacations = () => {
     return axios.get(API_URL + "vacations", {headers: authHeader()});
 }
 
-const getRequestById = (id,) => {
+const getBenefits = () => {
+    return axios.get(API_URL + "benefits", {headers: authHeader()});
+}
+
+const getBenefitsByUserId = (id) => {
+    return axios.get(API_URL + "benefitsByUserId/" + id);
+}
+
+const getRequestById = (id) => {
     return axios.get(
         API_URL + "id/" + id, {headers: authHeader()});
 };
@@ -42,6 +50,8 @@ const RequestService = {
     createRequest,
     getRequests,
     getVacations,
+    getBenefits,
+    getBenefitsByUserId,
     getRequestById,
     updateRequestById,
     deleteRequestById

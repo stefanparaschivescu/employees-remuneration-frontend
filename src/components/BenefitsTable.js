@@ -68,7 +68,7 @@ function BenefitsTable(props) {
                     <BenefitAdd new={true} company={currentUser?.companyId} show={addModal}
                                 onHide={() => setAddModal(false)}/>
                     <BenefitRequest employeeId={id} requests={requests} show={requestModal}
-                                    onHide={() => setRequestModal(false)}/>
+                                onHide={() => setRequestModal(false)}/>
                 </Container>
             ) : (<LoadingScreen/>)}
         </>

@@ -77,7 +77,6 @@ function LoginForm(props) {
                                                 value={values.email}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                placeholder="name@example.com"
                                                 isInvalid={!!errors.email}/>
                                             <Form.Control.Feedback type="invalid">
                                                 {errors.email}
@@ -91,7 +90,6 @@ function LoginForm(props) {
                                                 value={values.password}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
-                                                placeholder="Password"
                                                 isInvalid={!!errors.password}/>
                                             <Form.Control.Feedback
                                                 type="invalid">{errors.password}

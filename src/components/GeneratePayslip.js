@@ -3,7 +3,7 @@ import {Button, Container, Form} from "react-bootstrap";
 import UserService from "../services/user.service";
 import {UserContext} from "../App";
 import LoadingScreen from "./LoadingScreen";
-import PDFService from "../services/pdf.service";
+import dateUtil from "../util/date.util";
 
 const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"];
@@ -31,29 +31,10 @@ function GeneratePayslip(props) {
                     const year = parseInt(hireDate.split("-")[0]);
                     const month = parseInt(hireDate.split("-")[1]);
 
-                    let years = [];
-                    for (let i = year; i <= new Date().getFullYear(); i++) {
-                        years.push(i);
-                    }
-                    setYears(years);
+                    const result = dateUtil.getDate(year, month, selectedYear);
 
-                    let months = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"];
-
-                    if (selectedYear === years[0]) {
-                        for (let i = 0; i < month; i++) {
-                            months.shift();
-                            console.log("shift");
-                        }
-                    }
-
-                    if (selectedYear === new Date().getFullYear()) {
-                        for (let i = 12; i > new Date().getMonth(); i--) {
-                            months.pop();
-                            console.log("test");
-                        }
-                    }
-                    setMonths(months);
+                    setYears(result.years);
+                    setMonths(result.months);
 
                     setIsLoading(false)
                 })
@@ -62,7 +43,7 @@ function GeneratePayslip(props) {
     }, [currentUser, userId, selectedYear]);
 
     const handleSubmit = () => {
-       window.open("http://localhost:3000/api/pdf/");
+       window.open("http://localhost:3000/api/pdf/payslip/" + userId + "/" + selectedMonth + "-" + selectedYear);
     }
 
     return (

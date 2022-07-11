@@ -13,9 +13,15 @@ function FunctionData(props) {
             .email("*Must be a valid email address")
             .max(50, "*Email must be less than 50 characters")
             .required("*Email is required"),
-        salary: yup.number()
-            .min(2000)
+        grossSalary: yup.number()
+            .min(2000, "*Gross salary must be at least 2000 RON")
             .required(),
+        netSalary: yup.number()
+            .min(1000, "*Net salary must be at least 1000 RON"),
+        mealTicketValue: yup.number()
+            .min(10, "*Meal ticket value must be at least 10 RON")
+            .required(),
+        taxExempt: yup.boolean(),
         internalNumber: yup.number()
             .required()
     });
@@ -23,7 +29,10 @@ function FunctionData(props) {
     const initialSchema = {
         companyName: "",
         email: "",
-        salary: "",
+        grossSalary: "",
+        netSalary: "",
+        mealTicketValue: "",
+        taxExempt: false,
         internalNumber: ""
     };
 
@@ -45,7 +54,10 @@ function FunctionData(props) {
                     const userObject = {
                         companyName: user.companyId.name ? user.companyId.name : "",
                         email: user.emailAddress ? user.emailAddress : "",
-                        salary: user.salary ? user.salary : "",
+                        grossSalary: user.grossSalary ? user.grossSalary : "",
+                        netSalary: user.netSalary ? user.netSalary : "",
+                        mealTicketValue: user.mealTicketValue ? user.mealTicketValue : "",
+                        taxExempt: user.hasOwnProperty("taxExempt") ? user.taxExempt : false,
                         internalNumber: user.internalNumber ? user.internalNumber : ""
                     }
                     setInitialValues(userObject);
@@ -58,7 +70,10 @@ function FunctionData(props) {
     const handleSubmit = (values) => {
         const userObject = {
             ...values.email && {emailAddress: values.email},
-            ...values.salary && {salary: values.salary},
+            ...values.grossSalary && {grossSalary: values.grossSalary},
+            ...values.netSalary && {netSalary: values.netSalary},
+            ...values.mealTicketValue && {mealTicketValue: values.mealTicketValue},
+            taxExempt: values.taxExempt,
             ...values.internalNumber && {internalNumber: values.internalNumber},
         };
 
@@ -87,6 +102,7 @@ function FunctionData(props) {
                             onSubmit={(values) => handleSubmit(values)}>
                         {({
                               values,
+                              setFieldValue,
                               errors,
                               handleChange,
                               handleBlur,
@@ -123,20 +139,20 @@ function FunctionData(props) {
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} controlId="formGridCompanySalary">
-                                        <Form.Label>Salary</Form.Label>
+                                    <Form.Group as={Col} controlId="formGridGrossSalary">
+                                        <Form.Label>Total Salary</Form.Label>
                                         <Form.Control
                                             disabled={!isAdmin}
                                             type="number"
-                                            name="salary"
-                                            value={values.salary}
+                                            name="grossSalary"
+                                            value={values.grossSalary}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
                                             placeholder="2000"
-                                            isInvalid={!!errors.salary}
+                                            isInvalid={!!errors.grossSalary}
                                         />
                                         <Form.Control.Feedback type="invalid">
-                                            {errors.salary}
+                                            {errors.grossSalary}
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
@@ -166,6 +182,55 @@ function FunctionData(props) {
                                     {/*    </Form.Select>*/}
                                     {/*</Form.Group>*/}
                                 </Row>
+
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} controlId="formGridyNetSalary">
+                                        <Form.Label>Net Salary</Form.Label>
+                                        <Form.Control
+                                            disabled
+                                            type="number"
+                                            name="netSalary"
+                                            value={values.netSalary}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="unavailable"
+                                            isInvalid={!!errors.netSalary}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.netSalary}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group as={Col} controlId="formGridMealTicketValue">
+                                        <Form.Label>Meal Ticket Value</Form.Label>
+                                        <Form.Control
+                                            disabled={!isAdmin}
+                                            type="number"
+                                            name="mealTicketValue"
+                                            value={values.mealTicketValue}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="30"
+                                            isInvalid={!!errors.mealTicketValue}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.mealTicketValue}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
+
+                                <Form.Group className="mb-3" controlId="formGridTaxExempt">
+                                    <Form.Check
+                                        disabled={!isAdmin}
+                                        type="switch"
+                                        label="Tax exempt"
+                                        name="taxExempt"
+                                        checked={values.taxExempt}
+                                        value={values.taxExempt}
+                                        onChange={() => setFieldValue('taxExempt', !values.taxExempt)}
+                                        onBlur={handleBlur}>
+                                    </Form.Check>
+                                </Form.Group>
 
                                 <Button hidden={!isAdmin} variant="primary" type="submit">
                                     Save changes

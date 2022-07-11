@@ -10,9 +10,12 @@ import {createContext, useEffect, useState} from "react";
 import AuthService from "./services/auth.service";
 import EmployeesTable from "./components/EmployeesTable";
 import LoadingScreen from "./components/LoadingScreen";
-import VacationsTable from "./components/VacationsTable";
+import VacationRequests from "./components/VacationRequests";
 import GeneratePayslip from "./components/GeneratePayslip";
 import SalaryCalculator from "./components/SalaryCalculator";
+import GenerateBankReport from "./components/GenerateBankReport";
+import BenefitsTable from "./components/BenefitsTable";
+import BenefitRequests from "./components/BenefitRequests";
 
 export const UserContext = createContext(undefined);
 
@@ -53,10 +56,16 @@ function App() {
                                element={<SignupForm/>}/>
                         <Route path="/table"
                                element={<EmployeesTable/>}/>
-                        <Route path="/vacations"
-                               element={<VacationsTable/>}/>
+                        <Route path="/vacationRequests"
+                               element={<VacationRequests/>}/>
+                        <Route path="/benefits"
+                               element={<BenefitsTable/>}/>
+                        <Route path="/benefitRequests"
+                               element={<BenefitRequests/>}/>
                         <Route path="/payslip"
                                element={<GeneratePayslip/>}/>
+                        <Route path="report"
+                               element={<GenerateBankReport/>}/>
                         <Route path="/calculator"
                                element={<SalaryCalculator/>}/>
                     </Routes>)}

@@ -3,37 +3,41 @@ import {Button, Col, Container, Form, Row} from "react-bootstrap";
 import NetSalaryTable from "./NetSalaryTable";
 
 const calculateSalary = (salary, type, ticketsNumber, ticketValue, payTax) => {
-    let cas = Math.round(0.25 * salary);
-    let cass = Math.round(0.1 * salary);
-    let taxes = Math.round(0.1 * (salary - cas - cass));
-    let ticketTaxes = Math.round(0.1 * (ticketValue * ticketsNumber));
+    salary = parseInt(salary);
+    ticketsNumber = parseInt(ticketsNumber !== "" ? ticketsNumber : "0");
+    ticketValue = parseInt(ticketValue !== "" ? ticketValue : "0");
+
+    const ticketsValue = Math.round(ticketValue * ticketsNumber);
+    let employerTax = 0;
+
+    if (type === "total") {
+        let gross = (0.0225 * (salary - ticketsValue)) / 1.0225;
+        employerTax = Math.round(0.0225 * (salary - ticketsValue - gross));
+        salary = Math.round(salary - employerTax - ticketsValue);
+    }
+
+    const cas = Math.round(0.25 * salary);
+    const cass = Math.round(0.1 * salary);
+    let taxes = Math.round(0.1 * (salary + ticketsValue - cas - cass));
 
     if (!payTax) {
         taxes = 0;
     }
 
-    let netSalary = 0;
-    if (type === "gross") {
-        netSalary = Math.round(salary - cas - cass - taxes - ticketTaxes);
-    }
-    else {
-        const employerTax = 0.0225 * salary;
-        netSalary = Math.round(salary - cas - cass - taxes - ticketTaxes - employerTax);
-
-    }
-
-    return [netSalary, cas, cass, taxes, ticketTaxes];
+    const netSalary = salary - cas - cass - taxes;
+    return [netSalary, cas, cass, taxes, ticketsValue, employerTax];
 }
 
 function SalaryCalculator(props) {
     const [grossSalary, setGrossSalary] = useState("");
     const [totalSalary, setTotalSalary] = useState("");
-    const [ticketNumber, setTicketNumber] = useState(0);
-    const [ticketValue, setTicketValue] = useState(0);
+    const [ticketNumber, setTicketNumber] = useState("0");
+    const [ticketValue, setTicketValue] = useState("0");
     const [taxes, setTaxes] = useState(true);
     const [cas, setCas] = useState();
     const [cass, setCass] = useState();
     const [ticketTaxes, setTicketTaxes] = useState();
+    const [employerTax, setEmployerTax] = useState();
     const [taxValue, setTaxValue] = useState();
     const [netSalary, setNetSalary] = useState();
     const [hideTable, setHideTable] = useState(true);
@@ -53,6 +57,9 @@ function SalaryCalculator(props) {
             setTaxValue(values[3]);
             setTicketTaxes(values[4]);
             setHideTable(false);
+            if (values[5] !== 0) {
+                setEmployerTax(values[5]);
+            }
         }
         else {
             alert("You didn't add the mandatory parameters")
@@ -90,14 +97,14 @@ function SalaryCalculator(props) {
                         <Form.Label>Meal tickets no.</Form.Label>
                         <Form.Control type="number" placeholder="0"
                         onChange={(e) =>
-                            setTicketNumber(parseInt(e.target.value))}/>
+                            setTicketNumber(e.target.value)}/>
                     </Form.Group>
 
                     <Form.Group as={Col} controlId="formGridTotalMealValue">
                         <Form.Label>Meal ticket value</Form.Label>
                         <Form.Control type="number" placeholder="17"
                         onChange={(e) =>
-                            setTicketValue(parseInt(e.target.value))}/>
+                            setTicketValue(e.target.value)}/>
                     </Form.Group>
                 </Row>
 
@@ -112,7 +119,7 @@ function SalaryCalculator(props) {
             <NetSalaryTable hidden={hideTable} cas={cas} cass={cass}
                     taxesPercent={taxValue === 0 ? "0%" : "10%"}
                     taxes={taxValue} ticketsNumber={ticketNumber} ticketsValue={ticketTaxes}
-                    netSalary={netSalary}/>
+                    employerTax={employerTax} netSalary={netSalary}/>
         </Container>
     )
 }

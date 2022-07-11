@@ -38,8 +38,17 @@ function NetSalaryTable(props) {
                     <td>{props.ticketsNumber}</td>
                     <td>{props.ticketsValue}</td>
                 </tr>
+                {props.employerTax &&
+                    <tr>
+                        <td>5</td>
+                        <td>Employer taxes</td>
+                        <td>2.25%</td>
+                        <td>{props.employerTax}</td>
+                    </tr>
+                }
                 <tr>
-                    <td>5</td>
+                    {props.employerTax === undefined ?
+                    <td>5</td> : <td>6</td>}
                     <td colSpan={2}>Net salary</td>
                     <td>{props.netSalary}</td>
                 </tr>

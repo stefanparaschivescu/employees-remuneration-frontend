@@ -1,16 +1,5 @@
 import {useContext, useState} from "react";
-import {
-    Button,
-    Container,
-    DropdownButton,
-    Form,
-    FormControl,
-    Image,
-    Nav,
-    Navbar,
-    NavDropdown,
-    Offcanvas
-} from "react-bootstrap";
+import {Button, Container, DropdownButton, Image, Nav, Navbar, NavDropdown, Offcanvas} from "react-bootstrap";
 import {Link, NavLink} from "react-router-dom";
 import {UserContext} from "../App";
 
@@ -38,36 +27,37 @@ function Menu(props) {
                     onHide={handleClose}
                 >
                     <Offcanvas.Header closeButton>
-                        <Offcanvas.Title id="offcanvasNavbarLabel">Offcanvas</Offcanvas.Title>
+                        <Offcanvas.Title id="offcanvasNavbarLabel">Menu</Offcanvas.Title>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
                         <Nav className="justify-content-end flex-grow-1 pe-3">
                             <Nav.Link as={NavLink} to="/" onClick={handleClose}>Home</Nav.Link>
-                            {!isAdmin && <Nav.Link
-                                as={NavLink} to="/payslip" onClick={handleClose}>Generate payslip</Nav.Link>}
-                            {isAdmin && <Nav.Link
-                                as={NavLink} to="/table" onClick={handleClose}>List of employees</Nav.Link>}
-                            {isAdmin && <Nav.Link
-                                as={NavLink} to="/vacations" onClick={handleClose}>List of vacation requests</Nav.Link>}
-                            <Nav.Link as={NavLink} to="/calculator" onClick={handleClose}>Salary net calculator</Nav.Link>
-                            <NavDropdown title="Dropdown" id="offcanvasNavbarDropdown">
-                                <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
-                                <NavDropdown.Item href="#action4">Another action</NavDropdown.Item>
-                                <NavDropdown.Divider/>
-                                <NavDropdown.Item href="#action5">
-                                    Something else here
-                                </NavDropdown.Item>
-                            </NavDropdown>
+                            <Nav.Link
+                                as={NavLink} to="/benefits" onClick={handleClose}>My benefits</Nav.Link>
+                            <Nav.Link as={NavLink} to="/calculator" onClick={handleClose}>Salary net
+                                calculator</Nav.Link>
+                            {isAdmin &&
+                                <NavDropdown title="Admin actions" id="offcanvasNavbarDropdown">
+                                    <NavDropdown.Item href="/payslip">Generate payslip file</NavDropdown.Item>
+                                    <NavDropdown.Divider/>
+                                    <NavDropdown.Item href="/report" onClick={handleClose}>
+                                        Generate bank report
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Divider/>
+                                    <NavDropdown.Item href="/table" onClick={handleClose}>
+                                        List of employees
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Divider/>
+                                    <NavDropdown.Item href="/vacationRequests" onClick={handleClose}>
+                                        List of vacation requests
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Divider/>
+                                    <NavDropdown.Item href="/benefitRequests" onClick={handleClose}>
+                                        List of benefit requests
+                                    </NavDropdown.Item>
+                                </NavDropdown>
+                            }
                         </Nav>
-                        <Form className="d-flex">
-                            <FormControl
-                                type="search"
-                                placeholder="Search"
-                                className="me-2"
-                                aria-label="Search"
-                            />
-                            <Button variant="outline-success">Search</Button>
-                        </Form>
                     </Offcanvas.Body>
                 </Navbar.Offcanvas>
                 <Navbar.Brand className={"ms-5 ps-5 d-none d-sm-block"} href="#">
