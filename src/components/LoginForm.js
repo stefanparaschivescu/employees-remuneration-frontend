@@ -22,10 +22,8 @@ function LoginForm(props) {
     let navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
 
     const handleLogin = (email, password) => {
-        setMessage("");
         setLoading(true);
 
         AuthService.login(email, password).then(
@@ -43,7 +41,6 @@ function LoginForm(props) {
 
                 console.log(resMessage);
                 setLoading(false);
-                setMessage(resMessage);
             }
         );
     };

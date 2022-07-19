@@ -4,7 +4,6 @@ import authHeader from "./auth-header";
 const API_URL = "http://localhost:3000/api/requests/";
 
 const createRequest = (request) => {
-    console.log(request);
     return axios.post(API_URL, request, {
         headers: authHeader()
     }).catch((err) => {
@@ -31,6 +30,10 @@ const getBenefitsByUserId = (id) => {
     return axios.get(API_URL + "benefitsByUserId/" + id);
 }
 
+const getVacationsByUserId = (id) => {
+    return axios.get(API_URL + "vacationsByUserId/" + id);
+}
+
 const getRequestById = (id) => {
     return axios.get(
         API_URL + "id/" + id, {headers: authHeader()});
@@ -52,6 +55,7 @@ const RequestService = {
     getVacations,
     getBenefits,
     getBenefitsByUserId,
+    getVacationsByUserId,
     getRequestById,
     updateRequestById,
     deleteRequestById

@@ -24,7 +24,8 @@ const calculateSalary = (salary, type, ticketsNumber, ticketValue, payTax) => {
         taxes = 0;
     }
 
-    const netSalary = salary - cas - cass - taxes;
+    const taxBases = salary + ticketsValue - cas - cass;
+    const netSalary = taxBases - ticketsValue - taxes;
     return [netSalary, cas, cass, taxes, ticketsValue, employerTax];
 }
 

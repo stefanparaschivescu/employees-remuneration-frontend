@@ -1,10 +1,12 @@
+import React, {useContext, useEffect, useState} from "react";
 import {Button, Col, Container, Form, Row} from "react-bootstrap";
-import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../App";
 import UserService from "../services/user.service";
 import * as yup from "yup";
 import {Formik} from "formik";
 import LoadingScreen from "./LoadingScreen";
+import FunctionService from "../services/function.service";
+import FunctionAdd from "./FunctionAdd";
 
 function FunctionData(props) {
     const validationSchema = yup.object().shape({
@@ -14,16 +16,20 @@ function FunctionData(props) {
             .max(50, "*Email must be less than 50 characters")
             .required("*Email is required"),
         grossSalary: yup.number()
-            .min(2000, "*Gross salary must be at least 2000 RON")
+            .min(2100, "*Gross salary must be at least 2100 RON")
             .required(),
         netSalary: yup.number()
             .min(1000, "*Net salary must be at least 1000 RON"),
         mealTicketValue: yup.number()
             .min(10, "*Meal ticket value must be at least 10 RON")
             .required(),
+        vacationDays: yup.number()
+            .min(21, "*Vacation days must be at least 21")
+            .required(),
         taxExempt: yup.boolean(),
         internalNumber: yup.number()
-            .required()
+            .required(),
+        functionId: yup.string()
     });
 
     const initialSchema = {
@@ -32,14 +38,18 @@ function FunctionData(props) {
         grossSalary: "",
         netSalary: "",
         mealTicketValue: "",
+        vacationDays: "",
         taxExempt: false,
-        internalNumber: ""
+        internalNumber: "",
+        functionId: ""
     };
 
     const currentUser = useContext(UserContext);
 
     const isAdmin = (currentUser.role.name === "admin");
+    const [addModal, setAddModal] = useState(false);
     const [userId, setUserId] = useState(undefined);
+    const [functions, setFunctions] = useState([]);
     const [initialValues, setInitialValues] = useState(initialSchema);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -50,6 +60,10 @@ function FunctionData(props) {
             setIsLoading(true);
             UserService.getUserById(userId)
                 .then(response => {
+                    FunctionService.getFunctions()
+                        .then(response => setFunctions(response.data))
+                        .catch(err => alert(err))
+
                     const user = response.data;
                     const userObject = {
                         companyName: user.companyId.name ? user.companyId.name : "",
@@ -57,9 +71,12 @@ function FunctionData(props) {
                         grossSalary: user.grossSalary ? user.grossSalary : "",
                         netSalary: user.netSalary ? user.netSalary : "",
                         mealTicketValue: user.mealTicketValue ? user.mealTicketValue : "",
+                        vacationDays: user.vacationDays ? user.vacationDays : "",
                         taxExempt: user.hasOwnProperty("taxExempt") ? user.taxExempt : false,
-                        internalNumber: user.internalNumber ? user.internalNumber : ""
+                        internalNumber: user.internalNumber ? user.internalNumber : "",
+                        functionId: user.hasOwnProperty("functionId") ? user.functionId._id : ""
                     }
+
                     setInitialValues(userObject);
                     setIsLoading(false);
                 })
@@ -73,8 +90,10 @@ function FunctionData(props) {
             ...values.grossSalary && {grossSalary: values.grossSalary},
             ...values.netSalary && {netSalary: values.netSalary},
             ...values.mealTicketValue && {mealTicketValue: values.mealTicketValue},
+            ...values.vacationDays && {vacationDays: values.vacationDays},
             taxExempt: values.taxExempt,
             ...values.internalNumber && {internalNumber: values.internalNumber},
+            ...values.functionId && {functionId: values.functionId}
         };
 
         UserService.updateUserById(userId, userObject)
@@ -140,7 +159,7 @@ function FunctionData(props) {
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col} controlId="formGridGrossSalary">
-                                        <Form.Label>Total Salary</Form.Label>
+                                        <Form.Label>Gross Salary</Form.Label>
                                         <Form.Control
                                             disabled={!isAdmin}
                                             type="number"
@@ -173,19 +192,45 @@ function FunctionData(props) {
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
-                                    {/*<Form.Group as={Col} controlId="formGridFunction">*/}
-                                    {/*    <Form.Label>Function</Form.Label>*/}
-                                    {/*    <Form.Select disabled={!isAdmin}>*/}
-                                    {/*        <option value="" disabled hidden>Choose...</option>*/}
-                                    {/*        <option value="1">Option1</option>*/}
-                                    {/*        <option value="2">Option2</option>*/}
-                                    {/*    </Form.Select>*/}
-                                    {/*</Form.Group>*/}
+                                    <Form.Group as={Col} controlId="formGridFunction">
+                                        <Form.Label>Function</Form.Label>
+                                        <Row>
+                                            <Col md={10} className="pe-0">
+                                                <Form.Select
+                                                    disabled={!isAdmin}
+                                                    name="functionId"
+                                                    value={values.functionId}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                >
+                                                    {functions.length === 0 ? (
+                                                        <option value="" disabled hidden>
+                                                            Add a new function (empty list)
+                                                        </option>
+                                                    ) : (
+                                                        <option value="" disabled hidden>
+                                                            Choose a function...
+                                                        </option>
+                                                    )}
+                                                    {functions.map((func) => (
+                                                        <option key={func.id} value={func.id}>{func.name}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Col>
+                                            {isAdmin &&
+                                                <Col md={2} className="text-end">
+                                                    <Button onClick={() => setAddModal(true)} variant="success">
+                                                        +
+                                                    </Button>
+                                                </Col>}
+                                        </Row>
+
+                                    </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col} controlId="formGridyNetSalary">
-                                        <Form.Label>Net Salary</Form.Label>
+                                        <Form.Label>Net Salary (no meal)</Form.Label>
                                         <Form.Control
                                             disabled
                                             type="number"
@@ -217,6 +262,23 @@ function FunctionData(props) {
                                             {errors.mealTicketValue}
                                         </Form.Control.Feedback>
                                     </Form.Group>
+
+                                    <Form.Group as={Col} controlId="formGridVacationDays">
+                                        <Form.Label>Vacation days</Form.Label>
+                                        <Form.Control
+                                            disabled={!isAdmin}
+                                            type="number"
+                                            name="vacationDays"
+                                            value={values.vacationDays}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="21"
+                                            isInvalid={!!errors.vacationDays}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.vacationDays}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
                                 </Row>
 
                                 <Form.Group className="mb-3" controlId="formGridTaxExempt">
@@ -238,6 +300,7 @@ function FunctionData(props) {
                             </Form>
                         )}
                     </Formik>
+                    <FunctionAdd show={addModal} onHide={() => setAddModal(false)}/>
                 </Container>) : (<LoadingScreen/>)}
         </>
 

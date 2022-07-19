@@ -4,7 +4,6 @@ import authHeader from "./auth-header";
 const API_URL = "http://localhost:3000/api/companies/";
 
 const createCompany = (company) => {
-    console.log(company);
     return axios.post(API_URL, company,{
         headers: authHeader()
     }).catch((err) => {

@@ -13,6 +13,14 @@ const getUsers = () => {
     return axios.get(API_URL, {headers: authHeader()});
 };
 
+const getUsersGrossSalaries = () => {
+    return axios.get(API_URL + "salaries", {headers: authHeader()});
+}
+
+const getUsersHireDates = () => {
+    return axios.get(API_URL + "seniority", {headers: authHeader()});
+}
+
 const getUserById = (id) => {
     return axios.get(
         API_URL + "id/" + id, {headers: authHeader()});
@@ -37,6 +45,8 @@ const deleteUserById = (id) => {
 const UserService = {
     createEmployee,
     getUsers,
+    getUsersGrossSalaries,
+    getUsersHireDates,
     getUserById,
     updateUserById,
     deleteUserById

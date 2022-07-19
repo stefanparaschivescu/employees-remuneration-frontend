@@ -43,7 +43,7 @@ function GeneratePayslip(props) {
     }, [currentUser, userId, selectedYear]);
 
     const handleSubmit = () => {
-       window.open("http://localhost:3000/api/pdf/payslip/" + userId + "/" + selectedMonth + "-" + selectedYear);
+       window.open("http://localhost:3000/api/pdf/payslip/" + userId + "/" + selectedYear + "-" + selectedMonth);
     }
 
     return (

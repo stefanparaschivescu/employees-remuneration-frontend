@@ -3,8 +3,11 @@ import {Button, Col, Container, Form, Row} from "react-bootstrap";
 
 import AuthService from "../services/auth.service";
 import CompanyService from "../services/company.service";
+import {useNavigate} from "react-router-dom";
 
 function SignupForm(props) {
+    let navigate = useNavigate();
+
     const [CUI, setCUI] = useState("");
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
@@ -19,22 +22,12 @@ function SignupForm(props) {
     };
 
     const onChangeName = (e) => setName(e.target.value);
-
     const onChangeAddress = (e) => setAddress(e.target.value);
-
     const onChangeEmail = (e) => setEmail(e.target.value);
-
     const onChangePassword = (e) => setPassword(e.target.value);
 
     const handleRegister = (e) => {
         e.preventDefault();
-
-        // setMessage("");
-        // setSuccessful(false);
-
-        // form.current.validateAll();
-
-        // if (checkBtn.current.context._errors.length === 0) {
 
         CompanyService.createCompany({
             CUI: CUI,
@@ -42,14 +35,11 @@ function SignupForm(props) {
             address: address
         }).then((res) => {
             companyId = res.data.id;
-            console.log(companyId)
 
             AuthService.register(companyId, email, password, "admin")
-                .then(
-                    (response) => {
-                        console.log(response.data.message);
-                        // setMessage(response.data.message);
-                        // setSuccessful(true);
+                .then(response => {
+                        navigate("/profile");
+                        window.location.reload();
                     },
                     (error) => {
                         const resMessage =
@@ -60,11 +50,7 @@ function SignupForm(props) {
                             error.toString();
 
                         console.log(resMessage);
-                        // setMessage(resMessage);
-                        // setSuccessful(false);
                     }
-
-                    // }
                 );
         });
     };

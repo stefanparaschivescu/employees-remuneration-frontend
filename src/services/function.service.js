@@ -1,41 +1,41 @@
 import axios from "axios";
 import authHeader from "./auth-header";
 
-const API_URL = "http://localhost:3000/api/vacations/";
+const API_URL = "http://localhost:3000/api/functions/";
 
-const createVacation = (vacation) => {
-    return axios.post(API_URL, vacation,{
+const createFunction = (Function) => {
+    return axios.post(API_URL, Function,{
         headers: authHeader()
     }).catch((err) => {
         alert(err.toString());
     });
 }
 
-const getVacations = () => {
+const getFunctions = () => {
     return axios.get(API_URL, { headers: authHeader() });
 };
 
-const getVacationById = (id) => {
+const getFunctionById = (id) => {
     return axios.get(
         API_URL + "id/" + id, { headers: authHeader() });
 };
 
-const updateVacationById = (id, body) => {
+const updateFunctionById = (id, body) => {
     return axios.put(
         API_URL + "id/" + id, body,{ headers: authHeader() });
 };
 
-const deleteVacationById = (id) => {
+const deleteFunctionById = (id) => {
     return axios.delete(
         API_URL + "id/" + id, { headers: authHeader() });
 };
 
-const VacationService = {
-    createVacation,
-    getVacations,
-    getVacationById,
-    updateVacationById,
-    deleteVacationById
+const FunctionService = {
+    createFunction,
+    getFunctions,
+    getFunctionById,
+    updateFunctionById,
+    deleteFunctionById
 };
 
-export default VacationService;
+export default FunctionService;

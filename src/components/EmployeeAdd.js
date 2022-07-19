@@ -1,16 +1,20 @@
+import React from "react";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
-import {DatePicker} from "react-rainbow-components";
-import {useState} from "react";
 import {Formik} from "formik";
 import * as yup from "yup";
 import UserService from "../services/user.service";
+import {useContext} from "react";
+import {UserContext} from "../App";
 
 function EmployeeAdd(props) {
+    const currentUser = useContext(UserContext);
     const phoneRegExp = /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/
 
     const validationSchema = yup.object().shape({
-        firstName: yup.string(),
-        lastName: yup.string(),
+        firstName: yup.string()
+            .required("*First name is required"),
+        lastName: yup.string()
+            .required("*Last name is required"),
         dateOfBirth: yup.date()
             .max(new Date()),
         phoneNumber: yup.string()
@@ -25,31 +29,32 @@ function EmployeeAdd(props) {
             .required("*Email is required"),
         password: yup.string()
             .required("*A default password is required in order to add a new employee"),
-        salary: yup.number()
+        grossSalary: yup.number()
             .min(2000)
             .required(),
         internalNumber: yup.number()
-            .required()
+            .required(),
+        taxExempt: yup.boolean(),
     });
 
     const initialSchema = {
         firstName: "",
         lastName: "",
-        dateOfBirth: new Date(),
+        dateOfBirth: new Date().toISOString().split('T')[0],
         phoneNumber: "",
         gender: "",
         address: "",
         married: "",
         email: "",
         password: "",
-        salary: "",
-        internalNumber: ""
+        grossSalary: "",
+        internalNumber: "",
+        taxExempt: false,
     };
-
-    const [initialValues, setInitialValues] = useState(initialSchema);
 
     const handleSubmit = (values) => {
         const userObject = {
+            companyId: currentUser.companyId.id,
             ...values.firstName && {firstName: values.firstName},
             ...values.lastName && {lastName: values.lastName},
             ...values.dateOfBirth && {dateOfBirth: values.dateOfBirth},
@@ -58,8 +63,10 @@ function EmployeeAdd(props) {
             ...values.address && {address: values.address},
             ...values.married && {married: values.married},
             ...values.email && {emailAddress: values.email},
-            ...values.salary && {salary: values.salary},
-            ...values.internalNumber && {internalNumber: values.internalNumber}
+            ...values.password && {passwordToken: values.password},
+            ...values.grossSalary && {grossSalary: values.grossSalary},
+            ...values.internalNumber && {internalNumber: values.internalNumber},
+            ...values.taxExempt && {taxExempt: values.taxExempt}
         };
 
         UserService.createEmployee(userObject)
@@ -90,7 +97,7 @@ function EmployeeAdd(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Formik initialValues={initialValues}
+                <Formik initialValues={initialSchema}
                         enableReinitialize
                         validationSchema={validationSchema}
                         onSubmit={(values) => handleSubmit(values)}>
@@ -100,7 +107,7 @@ function EmployeeAdd(props) {
                           handleChange,
                           handleBlur,
                           handleSubmit,
-                          setFieldValue,
+                          setFieldValue
                       }) => (
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
@@ -138,11 +145,14 @@ function EmployeeAdd(props) {
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="formGridBirthday">
                                     <Form.Label>Date of birth</Form.Label>
-                                    <DatePicker
+                                    <Form.Control
+                                        type="date"
                                         name="dateOfBirth"
                                         value={values.dateOfBirth}
-                                        onChange={(value) => setFieldValue("dateOfBirth", new Date(value))}
-                                        error={errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}/>
+                                        onChange={handleChange}/>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="formGridPhone">
@@ -228,7 +238,7 @@ function EmployeeAdd(props) {
                                         type="text"
                                         name="email"
                                         value={values.email}
-                                        onChange = {handleChange}
+                                        onChange={handleChange}
                                         onBlur={handleBlur}
                                         placeholder="email@example.com"
                                         isInvalid={!!errors.email}
@@ -240,19 +250,19 @@ function EmployeeAdd(props) {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group as={Col} controlId="formGridCompanySalary">
-                                    <Form.Label>Salary</Form.Label>
+                                <Form.Group as={Col} controlId="formGridCompanyGrossSalary">
+                                    <Form.Label>Gross salary</Form.Label>
                                     <Form.Control
                                         type="number"
-                                        name="salary"
-                                        value={values.salary}
+                                        name="grossSalary"
+                                        value={values.grossSalary}
                                         onChange={handleChange}
                                         onBlur={handleBlur}
                                         placeholder="2000"
-                                        isInvalid={!!errors.salary}
+                                        isInvalid={!!errors.grossSalary}
                                     />
                                     <Form.Control.Feedback type="invalid">
-                                        {errors.salary}
+                                        {errors.grossSalary}
                                     </Form.Control.Feedback>
                                 </Form.Group>
 
@@ -272,6 +282,18 @@ function EmployeeAdd(props) {
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
+
+                            <Form.Group className="mb-3" controlId="formGridTaxExempt">
+                                <Form.Check
+                                    type="switch"
+                                    label="Tax exempt"
+                                    name="taxExempt"
+                                    checked={values.taxExempt}
+                                    value={values.taxExempt}
+                                    onChange={() => {setFieldValue('taxExempt', !values.taxExempt)}}
+                                    onBlur={handleBlur}>
+                                </Form.Check>
+                            </Form.Group>
 
                             <Button variant="primary" type="submit">
                                 Save changes

@@ -1,30 +1,24 @@
 import {Button, Form, Modal} from "react-bootstrap";
 import {Formik} from "formik";
 import * as yup from "yup";
-import BenefitService from "../services/benefit.service";
+import FunctionService from "../services/function.service";
 
-function BenefitAdd(props) {
+function FunctionAdd(props) {
     const validationSchema = yup.object().shape({
         name: yup.string()
-            .required("*A name for the benefit is required."),
-        cost: yup.number()
-            .min(0, "*Benefit should have a cost of at least 0.")
-            .max(500, "*Benefit should have a cost of maximum 500.")
-            .required()
+            .required("*A name for the function is required.")
     });
 
     const initialSchema = {
-        name: "",
-        cost: ""
+        name: ""
     };
 
     const handleSubmit = (values) => {
         const userObject = {
             ...values.name && {name: values.name},
-            ...values.cost && {cost: values.cost}
         };
 
-        BenefitService.createBenefit(userObject)
+        FunctionService.createFunction(userObject)
             .then(() => {
                     window.location.reload();
                 },
@@ -48,7 +42,7 @@ function BenefitAdd(props) {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    Add new benefit
+                    Add new function
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -63,7 +57,7 @@ function BenefitAdd(props) {
                           handleBlur,
                           handleSubmit
                       }) => (
-                        <Form onSubmit={handleSubmit}>
+                        <Form className="w-50" onSubmit={handleSubmit}>
                             <Form.Group className="mb-3" controlId="formGridName">
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control
@@ -72,26 +66,10 @@ function BenefitAdd(props) {
                                     value={values.name}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    placeholder="Name"
+                                    placeholder="Function name"
                                     isInvalid={!!errors.name}/>
                                 <Form.Control.Feedback type="invalid">
                                     {errors.name}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" controlId="formGridCost">
-                                <Form.Label>Cost of the benefit</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    name="cost"
-                                    value={values.cost}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    placeholder="100"
-                                    isInvalid={!!errors.cost}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                    {errors.cost}
                                 </Form.Control.Feedback>
                             </Form.Group>
 
@@ -106,4 +84,4 @@ function BenefitAdd(props) {
 }
 
 
-export default BenefitAdd;
+export default FunctionAdd;

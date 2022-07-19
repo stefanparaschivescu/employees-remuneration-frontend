@@ -1,11 +1,12 @@
 import {Button, Col, Container, Form, Row} from "react-bootstrap";
 import {DatePicker} from "react-rainbow-components";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {UserContext} from "../App";
 import {Formik} from "formik";
 import * as yup from "yup";
 import UserService from "../services/user.service";
 import LoadingScreen from "./LoadingScreen";
+import moment from "moment";
 
 function PersonalData(props) {
     const phoneRegExp = /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/
@@ -14,25 +15,27 @@ function PersonalData(props) {
         firstName: yup.string(),
         lastName: yup.string(),
         dateOfBirth: yup.date()
-            .max(new Date()),
+            .max(moment(new Date()).format("YYYY-MM-DD")),
         phoneNumber: yup.string()
             .matches(phoneRegExp, "*Phone number is not valid"),
         gender: yup.boolean(),
         address: yup.string()
             .required("*Address is required"),
         married: yup.boolean(),
-        IBAN: yup.string()
+        IBAN: yup.string(),
+        BIC: yup.string()
     });
 
     const initialSchema = {
         firstName: "",
         lastName: "",
-        dateOfBirth: new Date(),
+        dateOfBirth: moment(new Date()).format("YYYY-MM-DD"),
         phoneNumber: "",
         gender: "",
         address: "",
         married: "",
-        IBAN: ""
+        IBAN: "",
+        BIC: ""
     }
 
     const currentUser = useContext(UserContext);
@@ -52,12 +55,15 @@ function PersonalData(props) {
                     const userObject = {
                         firstName: user.firstName ? user.firstName : "",
                         lastName: user.lastName ? user.lastName : "",
-                        dateOfBirth: user.dateOfBirth !== undefined ? new Date(String(user.dateOfBirth)) : new Date(),
+                        dateOfBirth: user.dateOfBirth !== undefined ?
+                            moment(user.dateOfBirth).format("YYYY-MM-DD") :
+                            moment(new Date()).format("YYYY-MM-DD"),
                         phoneNumber: user.phoneNumber ? user.phoneNumber : "",
                         gender: user.hasOwnProperty("gender") ? user.gender : "",
                         address: user.address ? user.address : "",
                         married: user.hasOwnProperty("married") ? user.married : "",
                         IBAN: user.IBAN ? user.IBAN : "",
+                        BIC: user.BIC ? user.BIC : "",
                     }
                     setInitialValues(userObject);
                     setIsLoading(false);
@@ -76,7 +82,8 @@ function PersonalData(props) {
             ...values.gender && {gender: values.gender},
             ...values.address && {address: values.address},
             ...values.married && {married: values.married},
-            ...values.IBAN && {IBAN: values.IBAN}
+            ...values.IBAN && {IBAN: values.IBAN},
+            ...values.BIC && {BIC: values.BIC}
         };
 
         UserService.updateUserById(userId, userObject)
@@ -146,11 +153,25 @@ function PersonalData(props) {
                                 <Row className="mb-3">
                                     <Form.Group as={Col} controlId="formGridBirthday">
                                         <Form.Label>Date of birth</Form.Label>
-                                        <DatePicker
-                                            name="dateOfBirth"
-                                            value={values.dateOfBirth}
-                                            onChange={(value) => setFieldValue("dateOfBirth", new Date(value))}
-                                            error={errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}/>
+                                        {props.insideModal ? (
+                                            <>
+                                                <Form.Control
+                                                    type="date"
+                                                    name="dateOfBirth"
+                                                    value={values.dateOfBirth}
+                                                    onChange={handleChange}/>
+                                                <Form.Control.Feedback type="invalid">
+                                                    {errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}
+                                                </Form.Control.Feedback>
+                                            </>
+                                        ) : (
+                                            <DatePicker
+                                                name="dateOfBirth"
+                                                value={values.dateOfBirth}
+                                                onChange={(value) =>
+                                                    setFieldValue("dateOfBirth", moment(value).format("YYYY-MM-DD"))}
+                                                error={errors.dateOfBirth && errors.dateOfBirth.split("T")[0]}/>
+                                        )}
                                     </Form.Group>
 
                                     <Form.Group as={Col} controlId="formGridPhone">
@@ -214,20 +235,37 @@ function PersonalData(props) {
                                     </Form.Group>
                                 </Row>
 
-                                <Form.Group className="mb-3" controlId="formGridIBAN">
-                                    <Form.Label>IBAN</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="IBAN"
-                                        value={values.IBAN}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        placeholder="RO35BTRLRONCRT2952912"
-                                        isInvalid={!!errors.IBAN}/>
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.IBAN}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} controlId="formGridIBAN">
+                                        <Form.Label>IBAN</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="IBAN"
+                                            value={values.IBAN}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="RO35BTRLRONCRT2952912"
+                                            isInvalid={!!errors.IBAN}/>
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.IBAN}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group as={Col} controlId="formGridBIC">
+                                        <Form.Label>BIC</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="BIC"
+                                            value={values.BIC}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            placeholder="SWIFT CODE"
+                                            isInvalid={!!errors.BIC}/>
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.BIC}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Row>
 
                                 <Button variant="primary" type="submit">
                                     Save changes

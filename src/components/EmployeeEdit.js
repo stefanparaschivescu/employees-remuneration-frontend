@@ -15,7 +15,7 @@ function EmployeeEdit(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <EmployeeData userid={props.userid}/>
+                <EmployeeData insideModal={true} userid={props.userid}/>
             </Modal.Body>
         </Modal>
     );

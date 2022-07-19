@@ -5,6 +5,8 @@ import RemoveFromArrayUtil from "../util/remove.util";
 import RequestService from "../services/request.service";
 
 function BenefitRequest(props) {
+    const employeeId = props.employeeId;
+
     const [benefits, setBenefits] = useState([]);
     const [selectedBenefit, setSelectedBenefit] = useState(undefined);
 
@@ -28,14 +30,12 @@ function BenefitRequest(props) {
     }, [props.requests])
 
     const handleSubmit = () => {
-        console.log(props.employeeId);
-        console.log(selectedBenefit);
         RequestService.createRequest({
-            employeeId: props.employeeId,
+            employeeId: employeeId,
             benefitId: selectedBenefit
         })
             .then((response) => {
-                //window.location.reload();
+                window.location.reload();
             }, (error) => {
                 const resMessage =
                     (error.response &&
@@ -66,9 +66,10 @@ function BenefitRequest(props) {
                                      value={String(selectedBenefit)}
                                      onChange={(e) => setSelectedBenefit(e.target.value)}
                         >
+                            <option value="">Choose a benefit...</option>
                             {benefits.map((benefit) => (
                                 <option key={benefit.id} value={benefit.id}>{benefit.name +
-                                    " - " + " Cost: " + benefit.cost}</option>
+                                    " - Cost: " + benefit.cost}</option>
                             ))}
                         </Form.Select>
                     </FloatingLabel>

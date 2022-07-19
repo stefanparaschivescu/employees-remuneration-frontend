@@ -16,6 +16,7 @@ import SalaryCalculator from "./components/SalaryCalculator";
 import GenerateBankReport from "./components/GenerateBankReport";
 import BenefitsTable from "./components/BenefitsTable";
 import BenefitRequests from "./components/BenefitRequests";
+import VacationsTable from "./components/VacationsTable";
 
 export const UserContext = createContext(undefined);
 
@@ -56,6 +57,8 @@ function App() {
                                element={<SignupForm/>}/>
                         <Route path="/table"
                                element={<EmployeesTable/>}/>
+                        <Route path="/vacations"
+                               element={<VacationsTable/>}/>
                         <Route path="/vacationRequests"
                                element={<VacationRequests/>}/>
                         <Route path="/benefits"

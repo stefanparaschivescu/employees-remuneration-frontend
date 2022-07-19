@@ -32,14 +32,30 @@ function Menu(props) {
                     <Offcanvas.Body>
                         <Nav className="justify-content-end flex-grow-1 pe-3">
                             <Nav.Link as={NavLink} to="/" onClick={handleClose}>Home</Nav.Link>
-                            <Nav.Link
-                                as={NavLink} to="/benefits" onClick={handleClose}>My benefits</Nav.Link>
-                            <Nav.Link as={NavLink} to="/calculator" onClick={handleClose}>Salary net
-                                calculator</Nav.Link>
+                            {currentUser ? (
+                                <>
+                                    <Nav.Link as={NavLink} to="/benefits" onClick={handleClose}>
+                                        My benefits
+                                    </Nav.Link>
+                                    <Nav.Link as={NavLink} to="/vacations" onClick={handleClose}>
+                                        My vacations
+                                    </Nav.Link>
+                                    <Nav.Link as={NavLink} to="/calculator" onClick={handleClose}>
+                                        Salary net calculator
+                                    </Nav.Link>
+                                    <Nav.Link as={NavLink} to="/payslip" onClick={handleClose}>
+                                        Generate payslip file
+                                    </Nav.Link>
+                                </>) : (
+                                <>
+                                    <Nav.Link
+                                        as={NavLink} to="/login" onClick={handleClose}>Log in</Nav.Link>
+                                    <Nav.Link
+                                        as={NavLink} to="/singup" onClick={handleClose}>Sing up</Nav.Link>
+                                </>)}
+
                             {isAdmin &&
                                 <NavDropdown title="Admin actions" id="offcanvasNavbarDropdown">
-                                    <NavDropdown.Item href="/payslip">Generate payslip file</NavDropdown.Item>
-                                    <NavDropdown.Divider/>
                                     <NavDropdown.Item href="/report" onClick={handleClose}>
                                         Generate bank report
                                     </NavDropdown.Item>

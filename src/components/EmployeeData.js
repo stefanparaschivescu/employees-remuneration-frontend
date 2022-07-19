@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from "react";
+import {useContext, useState} from "react";
 import {Container, Tab, Tabs} from "react-bootstrap";
 import PersonalData from "./PersonalData";
 import FunctionData from "./FunctionData";
@@ -18,12 +18,12 @@ function EmployeeData(props) {
                     className="mb-3"
                 >
                     <Tab eventKey="personal" title="Personal Data">
-                        <PersonalData id={props.userid}/>
+                        <PersonalData insideModal={props.insideModal} id={props.userid}/>
                     </Tab>
                     <Tab eventKey="function" title="Function-related Data">
                         <FunctionData id={props.userid}/>
                     </Tab>
-                </Tabs>) : (<h1>You are not logged in</h1>)}
+                </Tabs>) : (<h1>You are not logged in. Please login after registration.</h1>)}
         </Container>
     );
 }

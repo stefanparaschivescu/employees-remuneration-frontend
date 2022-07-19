@@ -60,7 +60,8 @@ function BenefitsTable(props) {
                             <td>{request.benefitId.cost}</td>
                             <td>{(request.accepted && request.message === "") && <MdDoneOutline/>}
                                 {(!request.accepted && request.message === "") && <BsHourglassSplit/>}
-                                {(!request.accepted && request.message !== "") && <FcCancel/>}
+                                {(!request.accepted && request.message !== "") && (<><FcCancel/> {"              " +
+                                    request.message}</>)}
                             </td>
                         </tr>))}
                         </tbody>

@@ -8,8 +8,6 @@ import {UserContext} from "../App";
 import EmployeeAdd from "./EmployeeAdd";
 import LoadingScreen from "./LoadingScreen";
 
-const functions = ["Administrator", "Software Developer"];
-
 function EmployeesTable(props) {
     const currentUser = useContext(UserContext);
 
@@ -57,7 +55,7 @@ function EmployeesTable(props) {
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Function</th>
-                                <th>Salary</th>
+                                <th>Gross Salary</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -66,8 +64,8 @@ function EmployeesTable(props) {
                                 <td>{employees.indexOf(employee) + 1}</td>
                                 <td>{employee.firstName}</td>
                                 <td>{employee.lastName}</td>
-                                <td>{functions[employees.indexOf(employee)]}</td>
-                                <td>{employee.salary}</td>
+                                <td>{employee.hasOwnProperty("functionId") ? employee.functionId.name : ""}</td>
+                                <td>{employee.grossSalary}</td>
                                 <td>
                                     <Button className="me-2" variant="primary"
                                             onClick={() => {
@@ -84,7 +82,7 @@ function EmployeesTable(props) {
                             </tbody>
                         </Table>
                         <EmployeeEdit userid={selectedUserId} show={editModal} onHide={() => setEditModal(false)}/>
-                        <EmployeeAdd new={true} company={currentUser?.companyId} show={addModal}
+                        <EmployeeAdd new={"true"} company={currentUser?.companyId} show={addModal}
                                      onHide={() => setAddModal(false)}/>
                     </> : <h1>You don't have admin rights.</h1>}
                 </Container>
